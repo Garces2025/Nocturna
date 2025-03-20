@@ -12,6 +12,7 @@ class CategoriesController extends Controller
     public function index()
     {
         $categories = Category::with('places')->get();
+        
         return CategoryResource::collection($categories);
     }
 

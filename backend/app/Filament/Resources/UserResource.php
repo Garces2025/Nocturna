@@ -21,7 +21,7 @@ use Filament\Forms\Components\Section;
 use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Database\Eloquent\Model;
-
+use Filament\Notifications\Notification;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
@@ -44,7 +44,7 @@ class UserResource extends Resource
         return 'Gestionar usuarios del sistema';
     }
 
-    
+
     public static function form(Form $form): Form
     {
         return $form
@@ -106,8 +106,25 @@ class UserResource extends Resource
                 TextColumn::make('roles.name')
                     ->label('Roles')
                     ->badge(),
-                ToggleColumn::make('status')
-                    ->label('Activo'),
+                    ToggleColumn::make('status')
+                    ->label('Estado')
+                    ->afterStateUpdated(function ($record, $state) {
+                        $status = $state ? 'activado' : 'desactivado';
+                        $message = $state
+                            ? "El usuario ahora puede acceder al panel"
+                            : "El usuario ya no podrá acceder al panel";
+
+                        Notification::make()
+                            ->title("Usuario {$status}")
+                            ->body("El usuario {$record->name} ha sido {$status}. {$message}")
+                            ->color('primary')
+                            ->icon($state ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                            ->duration(4000)
+                            ->send();
+                    })
+                    ->onColor('primary')
+                    ->offColor('danger')
+                    ->tooltip('Activar/Desactivar acceso al panel'),
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime('d/m/Y H:i')
@@ -160,32 +177,32 @@ class UserResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
-        return auth()->user()->can('view_any_users');
+        return auth()->user()->can('Seccion_usuarios');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_users');
+        return auth()->user()->can('Crear_usuario');
     }
 
     public static function canEdit(Model $record): bool
     {
-        return auth()->user()->can('edit_users');
+        return auth()->user()->can('Editar_usuario');
     }
 
     public static function canDelete(Model $record): bool
     {
-        return auth()->user()->can('delete_users');
+        return auth()->user()->can('Eliminar_usuario');
     }
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_users');
+        return auth()->user()->can('Seccion_usuarios1');
     }
 
     public static function canView(Model $record): bool
     {
-        return auth()->user()->can('view_users');
+        return auth()->user()->can('Listar_usuarios');
     }
-    
-} 
+
+}

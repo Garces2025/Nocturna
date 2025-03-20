@@ -31,7 +31,7 @@ class ClientRequestResource extends Resource
         return static::getModel()::where('status', 'pending')->count();
     }
 
-    
+
     public static function getPermissionIdentifier(): string
     {
         return 'client_requests';
@@ -96,7 +96,7 @@ class ClientRequestResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
-                    ->label('Usuario')
+                    ->label('Cliente')
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('message')
@@ -143,13 +143,13 @@ class ClientRequestResource extends Resource
                         $user = $record->user;
                         $user->update(['role' => 'client']);
                         $user->syncRoles(['client']);
-                        
+
                         Notification::make()
                             ->title('Solicitud aprobada')
                             ->success()
                             ->body('El usuario ha sido promovido a cliente correctamente.')
                             ->send();
-                            
+
                         return redirect(request()->header('Referer'));
                     }),
                 Action::make('reject')
@@ -178,4 +178,4 @@ class ClientRequestResource extends Resource
             'edit' => Pages\EditClientRequest::route('/{record}/edit'),
         ];
     }
-} 
+}
